@@ -7,6 +7,7 @@ class LEDController {
  public:
   LEDController();
   void begin();
+  void applyConfig();
   void setSolid(unsigned long color);
   void startSpinner(unsigned long color);
   void updateSpinner();

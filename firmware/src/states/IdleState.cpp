@@ -4,12 +4,13 @@
 
 #include "Config.h"
 #include "Controllers.h"
+#include "LedConfig.h"
 #include "StateMachine.h"
 
 void IdleState::enter() {
   lastUpdateMs_ = 0;
   lastActivityMs_ = millis();
-  ledController.setSolid(Config::LED_IDLE_COLOR);
+  ledController.setSolid(ledConfig.idleColor);
 }
 
 bool IdleState::handleCalibrationRequest() {

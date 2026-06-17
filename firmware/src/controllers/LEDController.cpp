@@ -1,5 +1,6 @@
 #include "controllers/LEDController.h"
 #include "Config.h"
+#include "LedConfig.h"
 
 LEDController::LEDController()
     : ring_(Config::LED_COUNT, Config::PIN_LED_DATA,
@@ -23,8 +24,15 @@ void LEDController::begin() {
   digitalWrite(Config::PIN_LED_LS, LOW);
 
   ring_.begin();
-  ring_.setBrightness(Config::LED_BRIGHTNESS);
+  ring_.setBrightness(ledConfig.brightness);
   ring_.show();
+}
+
+void LEDController::applyConfig() {
+  ring_.setBrightness(ledConfig.brightness);
+  if (mode_ == Mode::Solid) {
+    setSolid(ledConfig.idleColor);
+  }
 }
 
 void LEDController::setPower(bool enabled) {
