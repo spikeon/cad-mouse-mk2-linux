@@ -10,6 +10,7 @@ class InputController {
   void update();
 
   uint16_t buttonBits() const;
+  bool areBothHeld() const;
   bool takeCalibrationRequest();
   bool takeColorConfigRequest();
   bool takeLeftClick();

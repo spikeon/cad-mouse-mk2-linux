@@ -20,9 +20,10 @@ void CalibratingState::update() {
   if (sensorController.calibrationDone()) {
     if (inputController.takeColorConfigRequest()) {
       stateMachine.changeState(&StateMachine::colorConfigState);
-    } else {
+    } else if (!inputController.areBothHeld()) {
       stateMachine.changeState(&StateMachine::idleState);
     }
+    // Both buttons still held — stay in calibrating until color config fires or released
   }
 }
 

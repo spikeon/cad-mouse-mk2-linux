@@ -75,6 +75,10 @@ uint16_t InputController::buttonBits() const {
   return bits;
 }
 
+bool InputController::areBothHeld() const {
+  return areBothPressed();
+}
+
 bool InputController::takeCalibrationRequest() {
   const bool out = calibrationRequested_;
   calibrationRequested_ = false;
