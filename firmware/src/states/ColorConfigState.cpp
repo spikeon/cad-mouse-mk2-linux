@@ -74,8 +74,10 @@ void ColorConfigState::exit() {
 // ── Breathing effect ──────────────────────────────────────────────────────────
 
 void ColorConfigState::applyBreathing(unsigned long now) {
+  const float kBreathMin = 0.2f;
   const float t = (now % kBreathePeriodMs) / (float)kBreathePeriodMs;
-  const float factor = (sinf(t * 2.0f * (float)M_PI - (float)M_PI / 2.0f) + 1.0f) / 2.0f;
+  const float sine = (sinf(t * 2.0f * (float)M_PI - (float)M_PI / 2.0f) + 1.0f) / 2.0f;
+  const float factor = kBreathMin + (1.0f - kBreathMin) * sine;
   const uint8_t displayBrightness = (uint8_t)(workBrightness_ * factor + 0.5f);
   const uint32_t color = (step_ == Step::Brightness) ? ledConfig.idleColor : hueToRgb(workHue_);
   ledController.setPreview(displayBrightness, color);
