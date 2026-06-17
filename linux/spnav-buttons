@@ -1,0 +1,114 @@
+#!/usr/bin/env python3
+"""
+Button mapper for CAD Mouse MK2.
+
+Button 0 (left):  scroll up (continuous while held)
+Button 1 (right): scroll down (continuous while held)
+Both together:    Shift+7 (OnShape shortcut: fit to window)
+
+Reads HID Report ID 3 directly from the hidraw device.
+Requires: ydotoold running, user in 'input' group.
+"""
+import glob
+import os
+import select
+import subprocess
+import threading
+import time
+
+# Auto-detect hidraw device by stable by-id path
+_matches = glob.glob(
+    "/dev/input/by-id/usb-Seeed_Studio_CAD_Mouse_MK2_*-if02-hidraw"
+)
+if not _matches:
+    raise RuntimeError(
+        "CAD Mouse MK2 not found. Is it plugged in? Is user in 'input' group?"
+    )
+HIDRAW = _matches[0]
+
+YDOTOOL_SOCKET = f"/run/user/{os.getuid()}/.ydotool_socket"
+BUTTON_REPORT_ID = 3
+CHORD_WINDOW = 0.05       # seconds — max gap between presses to count as chord
+SCROLL_INTERVAL = 0.05    # seconds between scroll ticks while held
+
+# Linux keycodes: KEY_LEFTSHIFT=42, KEY_7=8
+CHORD_KEY = ["key", "42:1", "8:1", "8:0", "42:0"]
+
+held = set()
+chord_fired = False
+timers = {}
+scroll_threads = {}
+
+
+def fire(args):
+    env = os.environ.copy()
+    env["YDOTOOL_SOCKET"] = YDOTOOL_SOCKET
+    subprocess.run(["ydotool"] + args, env=env)
+
+
+def scroll_loop(btn, stop_event):
+    direction = -3 if btn == 0 else 3
+    while not stop_event.is_set():
+        fire(["mousemove", "-w", "--", "0", str(direction)])
+        time.sleep(SCROLL_INTERVAL)
+
+
+def on_single(btn):
+    global chord_fired
+    if not chord_fired:
+        stop_event = threading.Event()
+        t = threading.Thread(target=scroll_loop, args=(btn, stop_event), daemon=True)
+        scroll_threads[btn] = (t, stop_event)
+        t.start()
+
+
+def on_press(btn):
+    global chord_fired
+    held.add(btn)
+    if len(held) == 2:
+        chord_fired = True
+        for t in timers.values():
+            t.cancel()
+        timers.clear()
+        fire(CHORD_KEY)
+        return
+    t = threading.Timer(CHORD_WINDOW, on_single, args=[btn])
+    timers[btn] = t
+    t.start()
+
+
+def on_release(btn):
+    global chord_fired
+    held.discard(btn)
+    if btn in timers:
+        timers.pop(btn).cancel()
+    if btn in scroll_threads:
+        _, stop_event = scroll_threads.pop(btn)
+        stop_event.set()
+    if not held:
+        chord_fired = False
+
+
+fd = open(HIDRAW, "rb")
+os.set_blocking(fd.fileno(), False)
+prev_bits = 0
+
+while True:
+    r, _, _ = select.select([fd], [], [], 1)
+    if not r:
+        continue
+    data = fd.read(64)
+    if not data or data[0] != BUTTON_REPORT_ID:
+        continue
+    bits = data[1] & 0x03
+    if bits == prev_bits:
+        continue
+    for btn in range(2):
+        mask = 1 << btn
+        was = bool(prev_bits & mask)
+        now = bool(bits & mask)
+        if now and not was:
+            on_press(btn)
+        elif was and not now:
+            on_release(btn)
+    prev_bits = bits
