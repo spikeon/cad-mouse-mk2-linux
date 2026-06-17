@@ -6,7 +6,7 @@ The LED ring color and brightness can be configured without reflashing. Changes 
 
 The device cycles through the standard RGB color wheel:
 
-![Color wheel](color-wheel.jpeg)
+![Color wheel](images/color-wheel.jpeg)
 
 Twist clockwise to advance through the colors (red → yellow → green → cyan → blue → magenta → red).
 
