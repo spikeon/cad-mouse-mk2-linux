@@ -1,7 +1,3 @@
-## LED configuration
-
-See [LED Color Configuration](../docs/led-color-config.md) for details on adjusting color and brightness at runtime or via the on-device button hold.
-
 You can customize several variables to tune gains, smoothing, and deadzones for all six axes.
 Most of these settings are defined in [`Config.h`](include/Config.h) and are the main place to adjust the overall feel of the device.
 
