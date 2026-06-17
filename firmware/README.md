@@ -1,3 +1,20 @@
+## Flashing firmware
+
+The RP2040 is flashed by copying a `.uf2` file onto the device when it appears as a USB drive (BOOTSEL mode).
+
+### Entering BOOTSEL mode
+
+**Without disassembly — plug-in trigger (recommended):**
+Hold both side buttons while plugging in the USB cable. The device will skip normal startup and mount immediately as a UF2 drive.
+
+**Without disassembly — hold trigger:**
+With the device already connected and running, hold both side buttons for 10 seconds. The device reboots into BOOTSEL mode.
+
+**Hardware button:**
+Hold the BOOTSEL button on the XIAO RP2040 while plugging in USB. Requires opening the enclosure.
+
+---
+
 You can customize several variables to tune gains, smoothing, and deadzones for all six axes.
 Most of these settings are defined in [`Config.h`](include/Config.h) and are the main place to adjust the overall feel of the device.
 
