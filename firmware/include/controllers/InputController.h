@@ -11,7 +11,6 @@ class InputController {
 
   uint16_t buttonBits() const;
   bool takeCalibrationRequest();
-  bool takeBootloaderRequest();
   bool takeActivity();
 
  private:
@@ -24,11 +23,9 @@ class InputController {
   ace_button::AceButton rightBtn_;
 
   bool calibrationRequested_ = false;
-  bool bootloaderRequested_ = false;
   bool hadActivity_ = false;
   unsigned long bothHeldStartMs_ = 0;
   bool calibrationHoldFired_ = false;
-  bool bootloaderHoldFired_ = false;
   bool leftPressed_ = false;
   bool rightPressed_ = false;
 

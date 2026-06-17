@@ -6,7 +6,6 @@ using namespace ace_button;
 
 namespace {
 const long kCalibrationHoldMs = 3000;
-const long kBootloaderHoldMs  = 10000;
 const uint16_t leftButtonMask  = 0x0001;
 const uint16_t rightButtonMask = 0x0002;
 }
@@ -25,11 +24,9 @@ void InputController::begin() {
 
   instance_ = this;
   calibrationRequested_ = false;
-  bootloaderRequested_ = false;
   hadActivity_ = false;
   bothHeldStartMs_ = 0;
   calibrationHoldFired_ = false;
-  bootloaderHoldFired_ = false;
   leftPressed_ = false;
   rightPressed_ = false;
 }
@@ -42,7 +39,6 @@ void InputController::update() {
   if (!areBothPressed()) {
     bothHeldStartMs_ = 0;
     calibrationHoldFired_ = false;
-    bootloaderHoldFired_ = false;
     return;
   }
 
@@ -51,17 +47,10 @@ void InputController::update() {
     return;
   }
 
-  const unsigned long heldMs = now - bothHeldStartMs_;
-
-  if (!calibrationHoldFired_ && heldMs >= kCalibrationHoldMs) {
+  if (!calibrationHoldFired_ && (now - bothHeldStartMs_) >= kCalibrationHoldMs) {
     calibrationRequested_ = true;
     hadActivity_ = true;
     calibrationHoldFired_ = true;
-  }
-
-  if (!bootloaderHoldFired_ && heldMs >= kBootloaderHoldMs) {
-    bootloaderRequested_ = true;
-    bootloaderHoldFired_ = true;
   }
 }
 
@@ -79,12 +68,6 @@ uint16_t InputController::buttonBits() const {
 bool InputController::takeCalibrationRequest() {
   const bool out = calibrationRequested_;
   calibrationRequested_ = false;
-  return out;
-}
-
-bool InputController::takeBootloaderRequest() {
-  const bool out = bootloaderRequested_;
-  bootloaderRequested_ = false;
   return out;
 }
 

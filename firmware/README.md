@@ -4,11 +4,8 @@ The RP2040 is flashed by copying a `.uf2` file onto the device when it appears a
 
 ### Entering BOOTSEL mode
 
-**Without disassembly — plug-in trigger (recommended):**
+**Without disassembly:**
 Hold both side buttons while plugging in the USB cable. The device will skip normal startup and mount immediately as a UF2 drive.
-
-**Without disassembly — hold trigger:**
-With the device already connected and running, hold both side buttons for 10 seconds. The device reboots into BOOTSEL mode.
 
 **Hardware button:**
 Hold the BOOTSEL button on the XIAO RP2040 while plugging in USB. Requires opening the enclosure.

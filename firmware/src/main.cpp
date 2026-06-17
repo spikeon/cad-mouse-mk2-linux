@@ -38,8 +38,5 @@ void setup() {
 
 void loop() {
   hidController.task();
-  if (inputController.takeBootloaderRequest()) {
-    rp2040.rebootToBootloader();
-  }
   stateMachine.update();
 }
