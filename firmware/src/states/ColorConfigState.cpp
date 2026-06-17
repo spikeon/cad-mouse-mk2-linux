@@ -8,10 +8,11 @@
 #include "StateMachine.h"
 
 namespace {
-const unsigned long kBlinkPeriodMs = 500;
-const float kRotTickThreshold = 1200.0f;  // accumulated Rz units per step
-const uint8_t kBrightnessStep = 8;       // brightness change per rotation tick
-const float kHueStep = 5.0f;             // degrees per rotation tick
+const float kRotTickThreshold        = 1200.0f;
+const uint8_t kBrightnessStep        = 8;
+const float kHueStep                 = 5.0f;
+const unsigned long kBreathePeriodMs = 2000;
+const unsigned long kBreathUpdateMs  = 16;   // ~60fps
 }
 
 // ── Color helpers ─────────────────────────────────────────────────────────────
@@ -55,10 +56,9 @@ void ColorConfigState::enter() {
   workBrightness_ = ledConfig.brightness;
   workHue_        = rgbToHue(ledConfig.idleColor);
 
-  step_        = Step::Brightness;
-  rotAccum_    = 0;
-  lastBlinkMs_ = 0;
-  blinkOn_     = false;
+  step_         = Step::Brightness;
+  rotAccum_     = 0;
+  lastLedMs_    = 0;
   lastUpdateMs_ = 0;
 
   // Clear any stale clicks that accumulated during hold
@@ -71,13 +71,14 @@ void ColorConfigState::exit() {
   ledController.applyConfig();
 }
 
-// ── Preview / blink ───────────────────────────────────────────────────────────
+// ── Breathing effect ──────────────────────────────────────────────────────────
 
-void ColorConfigState::applyPreview() {
-  uint32_t color = (step_ == Step::Brightness)
-                       ? ledConfig.idleColor
-                       : hueToRgb(workHue_);
-  ledController.setPreview(workBrightness_, color);
+void ColorConfigState::applyBreathing(unsigned long now) {
+  const float t = (now % kBreathePeriodMs) / (float)kBreathePeriodMs;
+  const float factor = (sinf(t * 2.0f * (float)M_PI - (float)M_PI / 2.0f) + 1.0f) / 2.0f;
+  const uint8_t displayBrightness = (uint8_t)(workBrightness_ * factor + 0.5f);
+  const uint32_t color = (step_ == Step::Brightness) ? ledConfig.idleColor : hueToRgb(workHue_);
+  ledController.setPreview(displayBrightness, color);
 }
 
 // ── Step transitions ──────────────────────────────────────────────────────────
@@ -88,8 +89,6 @@ void ColorConfigState::advanceStep() {
     ledConfig.brightness = workBrightness_;
     workHue_ = rgbToHue(ledConfig.idleColor);
     rotAccum_ = 0;
-    blinkOn_  = false;
-    lastBlinkMs_ = 0;
     step_ = Step::Color;
     // Clear clicks
     inputController.takeLeftClick();
@@ -164,20 +163,9 @@ void ColorConfigState::update() {
     changed = true;
   }
 
-  // ── Blink ──────────────────────────────────────────────────────────────────
-  bool blinkToggled = false;
-  if ((now - lastBlinkMs_) >= kBlinkPeriodMs) {
-    lastBlinkMs_ = now;
-    blinkOn_     = !blinkOn_;
-    blinkToggled = true;
-  }
-
-  if (changed || blinkToggled) {
-    if (blinkOn_) {
-      applyPreview();
-    } else {
-      // Dark phase: keep power on but show black
-      ledController.setPreview(workBrightness_, 0x000000);
-    }
+  // ── Breathing LED ──────────────────────────────────────────────────────────
+  if (changed || (now - lastLedMs_) >= kBreathUpdateMs) {
+    lastLedMs_ = now;
+    applyBreathing(now);
   }
 }
