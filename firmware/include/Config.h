@@ -35,8 +35,8 @@ const float AXIS_LIMIT = 350.0;
 
 // RGB LEDs
 const int LED_COUNT = 8;
-const int LED_BRIGHTNESS = 255;
-const unsigned long LED_IDLE_COLOR = 0xFFFFFF;
+const int LED_BRIGHTNESS = 40;
+const unsigned long LED_IDLE_COLOR = 0x00FF00;
 const unsigned long LED_CALIBRATING_COLOR = 0x0000FF;
 
 // FSM timing
