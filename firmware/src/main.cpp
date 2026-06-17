@@ -112,8 +112,5 @@ void setup() {
 void loop() {
   hidController.task();
   handleSerial();
-  if (inputController.takeBootloaderRequest()) {
-    rp2040.rebootToBootloader();
-  }
   stateMachine.update();
 }
