@@ -35,14 +35,14 @@ hidraw device      — raw HID access to button reports
 
 ## Firmware
 
-Before running the installer, flash the firmware with VID/PID spoofing enabled. The required `platformio.ini` settings are already in this repo:
+Before running the installer, flash the firmware with VID/PID spoofing enabled. `spacenavd` only recognises known 3Dconnexion VID/PIDs — spoofing as a SpaceMouse Compact (`256f:c635`) is the simplest way to make it work without custom configuration.
+
+Edit `platformio.ini` and uncomment/set these two lines:
 
 ```ini
 board_build.arduino.earlephilhower.usb_vid = 0x256F
 board_build.arduino.earlephilhower.usb_pid = 0xC635
 ```
-
-This makes the device appear as a SpaceMouse Compact so `spacenavd` recognises it without any custom configuration.
 
 To flash:
 1. Hold **B**, tap **R** on the XIAO RP2040 to enter BOOTSEL mode (or hold B while plugging in)
