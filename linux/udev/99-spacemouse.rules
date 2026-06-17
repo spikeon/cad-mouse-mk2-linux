@@ -1,0 +1,9 @@
+# CAD Mouse MK2 — VID/PID spoofed as SpaceMouse Compact (XXXX:YYYY)
+# Restart spacenavd when device is plugged in, then restart user services.
+ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="XXXX", ATTRS{idProduct}=="YYYY", \
+    RUN+="/usr/bin/systemctl restart spacenavd", \
+    RUN+="/usr/local/bin/restart-spacemouse-services"
+
+# Grant the 'input' group read access to the hidraw interface (for button mapping)
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="XXXX", ATTRS{idProduct}=="YYYY", \
+    MODE="0660", GROUP="input"
