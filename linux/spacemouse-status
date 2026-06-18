@@ -9,7 +9,9 @@ echo "CAD Mouse MK2 — status"
 echo
 
 # USB device
-if lsusb | grep -q "XXXX:YYYY"; then
+# Set VID:PID to match your device (run `lsusb` to find it)
+DEVICE_ID="${CAD_MOUSE_ID:-}"
+if [ -n "$DEVICE_ID" ] && lsusb | grep -q "$DEVICE_ID"; then
     ok "device" "connected"
 else
     fail "device" "NOT FOUND — plug in the mouse"

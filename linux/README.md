@@ -8,7 +8,7 @@ Linux has no official 3Dconnexion driver. The solution is a chain of open-source
 
 ```
 CAD Mouse MK2
-    │  USB HID (VID/PID spoofed as SpaceMouse Compact XXXX:YYYY)
+    │  USB HID
     ▼
 spacenavd          — reads 6DoF motion, exposes /var/run/spnav.sock
     │
@@ -35,14 +35,7 @@ hidraw device      — raw HID access to button reports
 
 ## Firmware
 
-Before running the installer, flash the firmware with VID/PID spoofing enabled. The required `platformio.ini` settings are already in this repo:
-
-```ini
-board_build.arduino.earlephilhower.usb_vid = 0xXXXX
-board_build.arduino.earlephilhower.usb_pid = 0xYYYY
-```
-
-This makes the device appear as a SpaceMouse Compact so `spacenavd` recognises it without any custom configuration.
+`spacenavd` only recognises devices with USB VID/PID values it knows about. You will need to configure the udev rules and spacenavd to match your device's actual VID/PID. Run `lsusb` after plugging in to find the values, then update `linux/udev/99-spacemouse.rules` and `/etc/spnavrc` accordingly.
 
 To flash:
 1. Hold **B**, tap **R** on the XIAO RP2040 to enter BOOTSEL mode (or hold B while plugging in)
@@ -107,7 +100,7 @@ sudo systemctl restart spacenavd
 **Motion not working in OnShape**
 - Check the Tampermonkey userscript is active on `cad.onshape.com`
 - Refresh the OnShape tab after any service restart
-- Verify spacenavd sees the device: `sudo journalctl -u spacenavd -n 30`
+- Verify spacenavd sees the device: `sudo journalctl -u spacenavd -n 30` (check VID/PID in udev rules matches your device)
 - Check spacenav-ws is running: `systemctl --user status spacenav-ws`
 
 **Buttons not working**

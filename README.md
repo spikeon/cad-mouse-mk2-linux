@@ -5,7 +5,6 @@ This is a fork of [sb-ocr/cad-mouse-mk2](https://github.com/sb-ocr/cad-mouse-mk2
 ## What's different
 
 **Firmware**
-- VID/PID spoofed to SpaceMouse Compact (`XXXX:YYYY`) so `spacenavd` recognises the device without custom configuration
 - Sleep timeout disabled
 
 **`linux/` directory** — full Linux integration, not in the original repo:
